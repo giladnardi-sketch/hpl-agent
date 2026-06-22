@@ -384,23 +384,15 @@ function openInGmail(id) {
     localStorage.setItem('hpl_sent_data', JSON.stringify(sentData));
   } catch(e) {}
   updateQC(); renderQueue(); renderTracker();
-  // Update Google Sheet via hidden iframe form (bypasses CORS completely)
+  // Update Google Sheet via script tag (bypasses CORS completely)
   const _row = item.lead.row;
   const _date = new Date().toLocaleDateString('he-IL');
-  const _scriptUrl = 'https://script.google.com/macros/s/AKfycbw3cRmpLb2lr3ucMBu54Yk41_UkZrV_rBuS_EGpDm397fl16eEOUxM-LgjNmfykGENyjg/exec';
-  try {
-    const _form = document.createElement('form');
-    _form.method = 'POST';
-    _form.action = _scriptUrl;
-    _form.target = '_sheet_iframe';
-    _form.style.display = 'none';
-    [['row',_row],['status','נשלח'],['date',_date]].forEach(([k,v])=>{
-      const i=document.createElement('input');i.type='hidden';i.name=k;i.value=v;_form.appendChild(i);
-    });
-    document.body.appendChild(_form);
-    _form.submit();
-    setTimeout(()=>document.body.removeChild(_form),2000);
-  } catch(e){}
+  const _scriptUrl = 'https://script.google.com/macros/s/AKfycbzwxZfEf6nNhdotKHJGtoZ6EeY1lDxhIuvANAl-GOp5S_Q_Jz3S5vxtsCn2TulDULt94A/exec';
+  const _src = `${_scriptUrl}?row=${_row}&status=%D7%A0%D7%A9%D7%9C%D7%97&date=${encodeURIComponent(_date)}`;
+  const _s = document.createElement('script');
+  _s.src = _src;
+  document.body.appendChild(_s);
+  setTimeout(()=>{ try{document.body.removeChild(_s);}catch(e){} }, 3000);
   toast('Gmail נפתח + הגיליון מתעדכן ✓');
 }
 
