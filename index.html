@@ -1,7 +1,4 @@
 
-cat /mnt/user-data/outputs/hpl_agent.html
-Output
-
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
@@ -227,7 +224,7 @@ async function loadSheet() {
   btn.disabled = true; btn.innerHTML = '<span class="spin"></span> טוען...';
   document.getElementById('sheet-info').textContent = 'מתחבר לגיליון...';
 
-  const url = `https://docs.google.com/spreadsheets/d/${S.sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(S.sheetName)}`;
+  const url = `https://docs.google.com/spreadsheets/d/1CX0KUqIuPVfulHHfyF3FZsV080MTmxi9KIQqa2wn4AE/gviz/tq?tqx=out:csv&gid=1778833395`;
 
   try {
     const res = await fetch(url);
