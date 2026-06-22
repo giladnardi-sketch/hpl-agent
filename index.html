@@ -384,10 +384,15 @@ function openInGmail(id) {
   } catch(e) {}
   updateQC(); renderQueue(); renderTracker();
   // Update Google Sheet automatically
-  fetch('https://script.google.com/macros/s/AKfycbxJoMj7KzilRbhiMBWxnNuM26cY4let1tWL4Ke_lXMhJYdpE65Mubh7osCYMQr6l8L9gA/exec', {
-    method: 'POST',
-    body: JSON.stringify({ row: item.lead.row, status: 'נשלח', date: new Date().toLocaleDateString('he-IL') })
-  }).then(() => toast('Gmail נפתח + הגיליון עודכן אוטומטית ✓')).catch(() => toast('Gmail נפתח — עדכן גיליון ידנית'));
+  const _form = document.createElement('form');
+  _form.method = 'POST';
+  _form.action = 'https://script.google.com/macros/s/AKfycbxJoMj7KzilRbhiMBWxnNuM26cY4let1tWL4Ke_lXMhJYdpE65Mubh7osCYMQr6l8L9gA/exec';
+  _form.target = '_hidden_sheet';
+  [['row', item.lead.row], ['status', 'נשלח'], ['date', new Date().toLocaleDateString('he-IL')]].forEach(([k,v]) => {
+    const i = document.createElement('input'); i.type='hidden'; i.name=k; i.value=v; _form.appendChild(i);
+  });
+  document.body.appendChild(_form); _form.submit(); document.body.removeChild(_form);
+  toast('Gmail נפתח + הגיליון מתעדכן ✓');
 }
 
 function renderQueue() {
@@ -451,6 +456,9 @@ function toast(msg) {
 
 loadSetup();
 loadSheet();
+// Auto-refresh every 3 minutes
+setInterval(() => { loadSheet(); }, 3 * 60 * 1000);
 </script>
+<iframe name="_hidden_sheet" style="display:none;"></iframe>
 </body>
 </html>
