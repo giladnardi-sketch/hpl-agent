@@ -132,7 +132,7 @@ table.leads-table tr.cat-row td{background:#e5e7eb;font-weight:700;color:#374151
       <p style="font-size:15px;font-weight:600;margin-bottom:1rem;">Google Sheets</p>
       <div class="field">
         <label>Sheet ID (מה-URL)</label>
-        <input type="text" id="sheet-id" value="1CX0KUqIuPVfulHHfyF3FZsV080MTmxi9KIQqa2wn4AE" />
+        <input type="text" id="sheet-id" value="10oNacnXJxCAcX0v7C82xEzJnzqafeSZZFQz6O7cX_mA" />
       </div>
       <div class="field">
         <label>שם הגיליון</label>
@@ -170,7 +170,7 @@ const BL = ['cubes','cladds','clads'];
 const SUBJECT = 'שרטוטי sd לחיפוי מבנים — גלעד נרדי';
 let leads = [], queue = [], af = 'all';
 let S = {
-  sheetId: '1CX0KUqIuPVfulHHfyF3FZsV080MTmxi9KIQqa2wn4AE',
+  sheetId: '10oNacnXJxCAcX0v7C82xEzJnzqafeSZZFQz6O7cX_mA',
   sheetName: 'לידים חיפוי ישראל',
   name: 'גלעד נרדי', phone: '052-8691819',
   gmail: 'giladnardi@gmail.com',
@@ -224,7 +224,7 @@ async function loadSheet() {
   btn.disabled = true; btn.innerHTML = '<span class="spin"></span> טוען...';
   document.getElementById('sheet-info').textContent = 'מתחבר לגיליון...';
 
-  const url = `https://docs.google.com/spreadsheets/d/1CX0KUqIuPVfulHHfyF3FZsV080MTmxi9KIQqa2wn4AE/gviz/tq?tqx=out:csv&gid=1778833395`;
+  const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vREfPje-E69C4s0VZTl7sVtGcamyL_kx4WZKV8nAPrnHfMUzH1j4NaxZG8KpczHTKBr5WiPs-0_88pK/pub?gid=1778833395&single=true&output=csv';
 
   try {
     const res = await fetch(url);
