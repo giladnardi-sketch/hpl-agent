@@ -1,6 +1,3 @@
-
-
-
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
@@ -115,7 +112,12 @@ table.leads-table tr.cat-row td{background:#e5e7eb;font-weight:700;color:#374151
   </div>
 
   <!-- תור -->
-  <div id="tab-queue" class="sec"><div id="queue-list"><div class="empty">התור ריק.</div></div></div>
+  <div id="tab-queue" class="sec">
+    <div class="srow" id="queue-actions" style="display:none;">
+      <button class="btn btn-green" onclick="sendAll()">📧 שלח הכל — אחד אחרי השני</button>
+    </div>
+    <div id="queue-list"><div class="empty">התור ריק.</div></div>
+  </div>
 
   <!-- מעקב -->
   <div id="tab-tracker" class="sec">
@@ -400,6 +402,9 @@ function openInGmail(id) {
 
 function renderQueue() {
   const el = document.getElementById('queue-list');
+  const actions = document.getElementById('queue-actions');
+  const pending = queue.filter(q => q.status === 'pending');
+  if (actions) actions.style.display = pending.length > 1 ? 'flex' : 'none';
   if (!queue.length) { el.innerHTML = '<div class="empty">התור ריק.</div>'; return; }
   el.innerHTML = queue.map(item => `
     <div class="card" id="qi-${item.id}">
@@ -455,6 +460,22 @@ function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.style.opacity = '1';
   setTimeout(() => t.style.opacity = '0', 3000);
+}
+
+function sendAll() {
+  const pending = queue.filter(q => q.status === 'pending');
+  if (!pending.length) { toast('אין מיילים בתור!'); return; }
+  let i = 0;
+  function sendNext() {
+    if (i >= pending.length) { toast('כל המיילים נשלחו! ✓'); return; }
+    const item = pending[i];
+    i++;
+    openInGmail(item.id);
+    if (i < pending.length) {
+      setTimeout(sendNext, 3000);
+    }
+  }
+  sendNext();
 }
 
 loadSetup();
