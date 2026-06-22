@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>סוכן לידים — HPL Designs</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,sans-serif;direction:rtl;text-align:right;background:#f5f5f5;color:#1a1a1a;}
+.topbar{background:#1a1a1a;color:#fff;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;}
+.topbar h1{font-size:16px;font-weight:600;}
+.topbar span{font-size:12px;color:#aaa;}
+.app{max-width:900px;margin:0 auto;padding:24px 16px;}
+.blocked{background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:13px;color:#dc2626;margin-bottom:1rem;}
+.tabs{display:flex;flex-direction:row-reverse;gap:4px;margin-bottom:1.5rem;border-bottom:1px solid #e5e7eb;}
+.tab{padding:10px 18px;font-size:14px;cursor:pointer;border:none;background:none;color:#6b7280;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:Arial,sans-serif;}
+.tab.active{color:#1a1a1a;border-bottom-color:#1a1a1a;font-weight:600;}
+.sec{display:none;}.sec.active{display:block;}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:1rem 1.25rem;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.05);}
+label{font-size:13px;color:#6b7280;display:block;margin-bottom:6px;}
+input,textarea,select{width:100%;font-size:14px;padding:8px 10px;border-radius:8px;border:1px solid #d1d5db;background:#fff;color:#1a1a1a;font-family:Arial,sans-serif;direction:rtl;text-align:right;}
+textarea{resize:vertical;line-height:1.7;}
+.field{margin-bottom:12px;}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;border:1px solid #d1d5db;background:transparent;color:#1a1a1a;font-size:14px;cursor:pointer;font-family:Arial,sans-serif;}
+.btn:hover{background:#f3f4f6;}
+.btn:disabled{opacity:0.4;cursor:not-allowed;}
+.btn-primary{background:#1a1a1a;color:#fff;border-color:#1a1a1a;}
+.btn-primary:hover{background:#333;}
+.btn-green{background:#16a34a;color:#fff;border-color:#16a34a;}
+.btn-green:hover{background:#15803d;}
+.btn-sm{padding:5px 12px;font-size:13px;}
+.btn-danger{border-color:#fca5a5;color:#dc2626;}
+.btn-danger:hover{background:#fef2f2;}
+.badge{display:inline-block;font-size:11px;padding:3px 9px;border-radius:99px;font-weight:600;}
+.b-pending{background:#fef3c7;color:#d97706;}
+.b-sent{background:#dcfce7;color:#16a34a;}
+.b-replied{background:#dbeafe;color:#1d4ed8;}
+.b-type{background:#f3f4f6;color:#6b7280;}
+.b-new{background:#fef3c7;color:#92400e;}
+.flex{display:flex;align-items:center;gap:8px;}
+.fb{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.name{font-weight:600;font-size:15px;color:#1a1a1a;}
+.sub{font-size:13px;color:#6b7280;margin-top:2px;}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem;}
+.stat{text-align:center;}
+.stat-n{font-size:28px;font-weight:700;color:#1a1a1a;}
+.stat-l{font-size:12px;color:#6b7280;margin-top:2px;}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid #e5e7eb;border-top-color:#6b7280;border-radius:50%;animation:sp 0.7s linear infinite;vertical-align:-2px;}
+@keyframes sp{to{transform:rotate(360deg);}}
+.empty{text-align:center;padding:3rem;color:#9ca3af;font-size:14px;}
+.srow{display:flex;gap:8px;margin-bottom:1rem;flex-direction:row-reverse;flex-wrap:wrap;}
+.srow input{flex:1;min-width:200px;}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;flex-direction:row-reverse;}
+.fbtn{padding:5px 14px;border-radius:99px;border:1px solid #d1d5db;background:transparent;font-size:13px;cursor:pointer;color:#6b7280;font-family:Arial,sans-serif;}
+.fbtn.on{background:#1a1a1a;color:#fff;border-color:#1a1a1a;}
+.brow{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;flex-direction:row-reverse;}
+.note{font-size:12px;color:#9ca3af;margin-top:6px;line-height:1.5;}
+.gmail-btn{background:#EA4335;color:#fff;border-color:#EA4335;}
+.gmail-btn:hover{background:#c5221f;}
+.info-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;font-size:13px;color:#15803d;margin-bottom:1rem;}
+.sheet-status{font-size:13px;padding:8px 12px;border-radius:8px;margin-bottom:1rem;}
+.sheet-ok{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;}
+.sheet-err{background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;}
+#toast{position:fixed;bottom:1.5rem;right:50%;transform:translateX(50%);background:#1a1a1a;color:#fff;padding:10px 24px;border-radius:8px;font-size:13px;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;z-index:999;}
+table.leads-table{width:100%;border-collapse:collapse;font-size:13px;}
+table.leads-table th{background:#1a1a1a;color:#fff;padding:8px 10px;text-align:right;font-weight:600;}
+table.leads-table td{padding:8px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle;}
+table.leads-table tr:hover td{background:#f9fafb;}
+table.leads-table tr.sent-row td{background:#f0fdf4;}
+table.leads-table tr.cat-row td{background:#e5e7eb;font-weight:700;color:#374151;}
+.status-select{padding:4px 8px;font-size:12px;border-radius:6px;border:1px solid #d1d5db;width:auto;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>🏗️ סוכן לידים — HPL Designs</h1>
+  <span id="sheet-info">טוען מ-Google Sheets...</span>
+</div>
+
+<div class="app">
+  <div class="blocked">
+    <strong>חוקים פעילים:</strong> Cubes ו-Cladds חסומים · כל המיילים בעברית · אישור ידני לפני כל שליחה
+  </div>
+
+  <div class="info-box">
+    ✅ <strong>הסוכן קורא ישירות מ-Google Sheets שלך</strong> — כל הלידים, הסטטוסים והפרטים מגיעים ממנו אוטומטית.
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('leads',event)">👥 לידים מהגיליון</button>
+    <button class="tab" onclick="showTab('queue',event)">✉️ תור מיילים <span id="qc" style="font-size:11px;background:#fef3c7;color:#d97706;padding:1px 7px;border-radius:99px;margin-right:2px;">0</span></button>
+    <button class="tab" onclick="showTab('tracker',event)">📊 מעקב</button>
+    <button class="tab" onclick="showTab('setup',event)">⚙️ הגדרות</button>
+  </div>
+
+  <!-- לידים -->
+  <div id="tab-leads" class="sec active">
+    <div class="srow">
+      <button class="btn btn-primary" onclick="loadSheet()">🔄 רענן מגיליון</button>
+      <input type="text" id="search-input" placeholder="חפש שם חברה..." oninput="renderLeads()" />
+    </div>
+    <div class="filters">
+      <button class="fbtn on" onclick="toggleFilter(this,'all')">הכל</button>
+      <button class="fbtn" onclick="toggleFilter(this,'קבלן')">קבלנים</button>
+      <button class="fbtn" onclick="toggleFilter(this,'ספק')">ספקים</button>
+      <button class="fbtn" onclick="toggleFilter(this,'מתכנן')">מתכננים</button>
+      <button class="fbtn" onclick="toggleFilter(this,'unsent')">טרם נשלח</button>
+    </div>
+    <div id="leads-list"><div class="empty">לוחץ "רענן מגיליון" כדי לטעון לידים...</div></div>
+  </div>
+
+  <!-- תור -->
+  <div id="tab-queue" class="sec"><div id="queue-list"><div class="empty">התור ריק.</div></div></div>
+
+  <!-- מעקב -->
+  <div id="tab-tracker" class="sec">
+    <div class="stats">
+      <div class="card stat"><div class="stat-n" id="st-total">0</div><div class="stat-l">סה״כ לידים</div></div>
+      <div class="card stat"><div class="stat-n" id="st-unsent">0</div><div class="stat-l">טרם נשלח</div></div>
+      <div class="card stat"><div class="stat-n" id="st-sent">0</div><div class="stat-l">נשלחו</div></div>
+      <div class="card stat"><div class="stat-n" id="st-replied">0</div><div class="stat-l">ענו</div></div>
+    </div>
+    <div id="tracker-list"><div class="empty">טען לידים כדי לראות מעקב.</div></div>
+  </div>
+
+  <!-- הגדרות -->
+  <div id="tab-setup" class="sec">
+    <div class="card">
+      <p style="font-size:15px;font-weight:600;margin-bottom:1rem;">Google Sheets</p>
+      <div class="field">
+        <label>Sheet ID (מה-URL)</label>
+        <input type="text" id="sheet-id" value="17f_7C0jkwQWtBMFzOsSizFPz-VZ0CHu_Uc0nd27jXEE" />
+      </div>
+      <div class="field">
+        <label>שם הגיליון</label>
+        <input type="text" id="sheet-name" value="לידים חיפוי ישראל" />
+      </div>
+    </div>
+    <div class="card">
+      <p style="font-size:15px;font-weight:600;margin-bottom:1rem;">הפרופיל שלך</p>
+      <div class="row">
+        <div class="field"><label>שם</label><input type="text" id="prof-name" value="גלעד נרדי" /></div>
+        <div class="field"><label>טלפון</label><input type="text" id="prof-phone" value="052-8691819" /></div>
+      </div>
+      <div class="field"><label>Gmail</label><input type="email" id="prof-gmail" value="giladnardi@gmail.com" /></div>
+      <div class="field"><label>אתר</label><input type="text" id="prof-site" value="https://www.hpldesigns.co" /></div>
+      <div class="field">
+        <label>גוף המייל הקבוע</label>
+        <textarea rows="5" id="prof-body">שלום רב,
+שמי גלעד נרדי. אני אדריכל, עם ניסיון עשיר בתחום התכנון בקסטות-
+אלוקובונד, אלומיניום 2 מ"מ, קופינג, ספי חלונות מאלומיניום 2 מ"מ, סופיט פאנל, פייבר צמנט ו-HPL.
+אם אתם צריכים תכנון חוברת פרטים (SD) או הפקת קבצים לייצור בחומר כלשהו — אשמח להיות בקשר.
+אתר: https://www.hpldesigns.co
+טל׳: 052-8691819
+בברכה,
+גלעד נרדי</textarea>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="saveSetup()">✓ שמור הגדרות</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const BL = ['cubes','cladds','clads'];
+const SUBJECT = 'שרטוטי sd לחיפוי מבנים — גלעד נרדי';
+let leads = [], queue = [], af = 'all';
+let S = {
+  sheetId: '17f_7C0jkwQWtBMFzOsSizFPz-VZ0CHu_Uc0nd27jXEE',
+  sheetName: 'לידים חיפוי ישראל',
+  name: 'גלעד נרדי', phone: '052-8691819',
+  gmail: 'giladnardi@gmail.com',
+  site: 'https://www.hpldesigns.co',
+  body: `שלום רב,\nשמי גלעד נרדי. אני אדריכל, עם ניסיון עשיר בתחום התכנון בקסטות-\nאלוקובונד, אלומיניום 2 מ"מ, קופינג, ספי חלונות מאלומיניום 2 מ"מ, סופיט פאנל, פייבר צמנט ו-HPL.\nאם אתם צריכים תכנון חוברת פרטים (SD) או הפקת קבצים לייצור בחומר כלשהו — אשמח להיות בקשר.\nאתר: https://www.hpldesigns.co\nטל׳: 052-8691819\nבברכה,\nגלעד נרדי`
+};
+
+function blocked(n) { return BL.some(b => (n||'').toLowerCase().includes(b)); }
+
+function showTab(t, e) {
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  if (e && e.target) e.target.closest('.tab').classList.add('active');
+  if (t === 'tracker') renderTracker();
+  if (t === 'queue') renderQueue();
+  if (t === 'leads') renderLeads();
+}
+
+function saveSetup() {
+  S.sheetId = document.getElementById('sheet-id').value;
+  S.sheetName = document.getElementById('sheet-name').value;
+  S.name = document.getElementById('prof-name').value;
+  S.phone = document.getElementById('prof-phone').value;
+  S.gmail = document.getElementById('prof-gmail').value;
+  S.site = document.getElementById('prof-site').value;
+  S.body = document.getElementById('prof-body').value;
+  localStorage.setItem('hpl_setup', JSON.stringify(S));
+  toast('ההגדרות נשמרו ✓');
+}
+
+function loadSetup() {
+  try {
+    const d = JSON.parse(localStorage.getItem('hpl_setup') || '{}');
+    if (d.sheetId) { S.sheetId = d.sheetId; document.getElementById('sheet-id').value = d.sheetId; }
+    if (d.sheetName) { S.sheetName = d.sheetName; document.getElementById('sheet-name').value = d.sheetName; }
+    if (d.name) { S.name = d.name; document.getElementById('prof-name').value = d.name; }
+    if (d.phone) { S.phone = d.phone; document.getElementById('prof-phone').value = d.phone; }
+    if (d.gmail) { S.gmail = d.gmail; document.getElementById('prof-gmail').value = d.gmail; }
+    if (d.site) { S.site = d.site; document.getElementById('prof-site').value = d.site; }
+    if (d.body) { S.body = d.body; document.getElementById('prof-body').value = d.body; }
+  } catch(e) {}
+  // Load sent history
+  try { const s = JSON.parse(localStorage.getItem('hpl_sent') || '[]'); sentIds = new Set(s); } catch(e) {}
+}
+
+let sentIds = new Set();
+
+async function loadSheet() {
+  const btn = document.querySelector('[onclick="loadSheet()"]');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span> טוען...';
+  document.getElementById('sheet-info').textContent = 'מתחבר לגיליון...';
+
+  const url = `https://docs.google.com/spreadsheets/d/${S.sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(S.sheetName)}`;
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('שגיאת חיבור');
+    const text = await res.text();
+    parseCSV(text);
+    document.getElementById('sheet-info').textContent = `✓ ${leads.length} לידים נטענו מהגיליון`;
+    renderLeads();
+    renderTracker();
+    toast(`נטענו ${leads.length} לידים מהגיליון!`);
+  } catch(e) {
+    document.getElementById('sheet-info').textContent = '⚠️ שגיאה בטעינה — בדוק שהגיליון מפורסם';
+    toast('שגיאה בטעינה מהגיליון');
+    // Load fallback
+    loadFallback();
+  }
+  btn.disabled = false; btn.innerHTML = '🔄 רענן מגיליון';
+}
+
+function parseCSV(text) {
+  const lines = text.split('\n').filter(l => l.trim());
+  leads = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = parseCSVLine(lines[i]);
+    if (!cols || cols.length < 2) continue;
+    const name = (cols[1] || '').replace(/^"|"$/g, '').trim();
+    if (!name || name.startsWith('🏭') || name.startsWith('🔨') || name.startsWith('📦') || name.startsWith('📐') || name.startsWith('🔩') || name.startsWith('✨')) continue;
+    if (blocked(name)) continue;
+    const email = (cols[7] || '').replace(/^"|"$/g, '').trim();
+    if (!email || email === '—' || email === '') continue;
+    leads.push({
+      id: i,
+      num: (cols[0] || '').replace(/^"|"$/g, '').trim(),
+      name,
+      type: (cols[2] || '').replace(/^"|"$/g, '').trim(),
+      specialty: (cols[3] || '').replace(/^"|"$/g, '').trim(),
+      materials: (cols[4] || '').replace(/^"|"$/g, '').trim(),
+      site: (cols[5] || '').replace(/^"|"$/g, '').trim(),
+      phone: (cols[6] || '').replace(/^"|"$/g, '').trim(),
+      email,
+      city: (cols[8] || '').replace(/^"|"$/g, '').trim(),
+      status: (cols[9] || '').replace(/^"|"$/g, '').trim(),
+      dateSent: (cols[10] || '').replace(/^"|"$/g, '').trim(),
+      notes: (cols[11] || '').replace(/^"|"$/g, '').trim(),
+      row: i + 1
+    });
+  }
+}
+
+function parseCSVLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    if (line[i] === '"') {
+      if (inQuotes && line[i+1] === '"') { current += '"'; i++; }
+      else inQuotes = !inQuotes;
+    } else if (line[i] === ',' && !inQuotes) {
+      result.push(current); current = '';
+    } else current += line[i];
+  }
+  result.push(current);
+  return result;
+}
+
+function loadFallback() {
+  leads = [
+    {id:1, name:'Wallmax', type:'קבלן חיפוי', email:'wallmaxmail@gmail.com', phone:'052-6287702', city:'רמת גן', status:'', materials:'אלוקובונד, ACP, HPL'},
+    {id:2, name:'Hai Mebresheet', type:'קבלן חיפוי', email:'office@emhai.co.il', phone:'052-7093903', city:'ישראל', status:'', materials:'אלומיניום, זכוכית, HPL'},
+    {id:3, name:'Facadetech', type:'ספק', email:'info@facadetech-il.com', phone:'09-7962223', city:'אבן יהודה', status:'', materials:'HPL, פייברצמנט, פורצלן'},
+    {id:4, name:'STB Innovation', type:'ספק', email:'info@stboards.com', phone:'09-8659011', city:'ישראל', status:'', materials:'Greenlam HPL'},
+    {id:5, name:'Alphex', type:'ספק', email:'office@alphex.co.il', phone:'04-8577571', city:'טירת כרמל', status:'', materials:'פורצלן'},
+  ];
+  toast('נטענו לידים לדוגמה — בדוק הגדרות גיליון');
+}
+
+function toggleFilter(btn, type) {
+  document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on'); af = type; renderLeads();
+}
+
+function renderLeads() {
+  const q = (document.getElementById('search-input') || {}).value || '';
+  const inQueue = queue.map(x => x.leadId);
+
+  let filtered = leads.filter(l => {
+    if (blocked(l.name)) return false;
+    if (af === 'unsent') return !l.status || l.status === '' || l.status === '—';
+    if (af !== 'all') return (l.type || '').includes(af);
+    return true;
+  }).filter(l => !q || l.name.toLowerCase().includes(q.toLowerCase()) || (l.email||'').toLowerCase().includes(q.toLowerCase()));
+
+  if (!filtered.length) {
+    document.getElementById('leads-list').innerHTML = '<div class="empty">אין לידים להצגה.</div>';
+    return;
+  }
+
+  const rows = filtered.map(l => {
+    const isQ = inQueue.includes(l.id);
+    const isSent = l.status && l.status !== '' && l.status !== '—';
+    const statusBadge = isSent
+      ? `<span class="badge ${l.status === 'ענה' ? 'b-replied' : 'b-sent'}">${l.status}</span>`
+      : '<span class="badge b-pending">טרם נשלח</span>';
+
+    const actionBtn = isSent
+      ? ''
+      : isQ
+        ? '<span class="badge b-pending">בתור</span>'
+        : `<button class="btn btn-sm btn-primary" onclick="addOne(${l.id})">+ הוסף לתור</button>`;
+
+    return `<tr class="${isSent ? 'sent-row' : ''}">
+      <td><strong>${l.name}</strong><br><span style="font-size:12px;color:#6b7280;">${l.city||''}</span></td>
+      <td><span class="badge b-type">${l.type||''}</span></td>
+      <td style="font-size:12px;">${l.email||'—'}</td>
+      <td style="font-size:12px;">${l.phone||'—'}</td>
+      <td>${statusBadge}</td>
+      <td>${actionBtn}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('leads-list').innerHTML = `
+    <table class="leads-table">
+      <thead><tr>
+        <th>שם חברה</th><th>סוג</th><th>אימייל</th><th>טלפון</th><th>סטטוס</th><th>פעולה</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function addOne(id) {
+  const lead = leads.find(l => l.id === id);
+  if (!lead || blocked(lead.name)) { toast('חברה זו חסומה!'); return; }
+  if (!lead.email || lead.email === '—') { toast('אין אימייל לחברה זו'); return; }
+  queue.push({ id: Date.now(), leadId: id, lead, email: S.body, subject: SUBJECT, status: 'pending' });
+  updateQC(); renderLeads();
+  toast(lead.name + ' נוסף לתור ✓');
+}
+
+function updateQC() { document.getElementById('qc').textContent = queue.filter(q => q.status === 'pending').length; }
+
+function openInGmail(id) {
+  const item = queue.find(q => q.id === id);
+  if (!item) return;
+  if (blocked(item.lead.name)) { toast('חברה זו חסומה!'); return; }
+  const to = encodeURIComponent(item.lead.email);
+  const sub = encodeURIComponent(item.subject);
+  const body = encodeURIComponent(item.email);
+  window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${sub}&body=${body}`, '_blank');
+  item.status = 'sent';
+  // Update local lead status
+  const lead = leads.find(l => l.id === item.leadId);
+  if (lead) { lead.status = 'נשלח'; lead.dateSent = new Date().toLocaleDateString('he-IL'); }
+  // Save to localStorage
+  try {
+    const sentData = JSON.parse(localStorage.getItem('hpl_sent_data') || '[]');
+    sentData.push({ leadId: item.leadId, name: item.lead.name, email: item.lead.email, sentAt: new Date().toLocaleDateString('he-IL') });
+    localStorage.setItem('hpl_sent_data', JSON.stringify(sentData));
+  } catch(e) {}
+  updateQC(); renderQueue(); renderTracker();
+  // Update Google Sheet automatically
+  fetch('https://script.google.com/macros/s/AKfycbxJoMj7KzilRbhiMBWxnNuM26cY4let1tWL4Ke_lXMhJYdpE65Mubh7osCYMQr6l8L9gA/exec', {
+    method: 'POST',
+    body: JSON.stringify({ row: item.lead.row, status: 'נשלח', date: new Date().toLocaleDateString('he-IL') })
+  }).then(() => toast('Gmail נפתח + הגיליון עודכן אוטומטית ✓')).catch(() => toast('Gmail נפתח — עדכן גיליון ידנית'));
+}
+
+function renderQueue() {
+  const el = document.getElementById('queue-list');
+  if (!queue.length) { el.innerHTML = '<div class="empty">התור ריק.</div>'; return; }
+  el.innerHTML = queue.map(item => `
+    <div class="card" id="qi-${item.id}">
+      <div class="fb" style="margin-bottom:10px;">
+        <span class="badge ${item.status === 'pending' ? 'b-pending' : 'b-sent'}">${item.status === 'pending' ? 'ממתין לאישורך' : '✓ נפתח ב-Gmail'}</span>
+        <div style="text-align:right;">
+          <div class="name">${item.lead.name}</div>
+          <div class="sub">${item.lead.email} · ${item.lead.city||''}</div>
+        </div>
+      </div>
+      <div class="field"><label>נושא</label><input type="text" value="${item.subject}" onchange="queue.find(q=>q.id===${item.id}).subject=this.value" /></div>
+      <div class="field"><label>גוף המייל</label><textarea rows="8" onchange="queue.find(q=>q.id===${item.id}).email=this.value">${item.email}</textarea></div>
+      <div class="brow">
+        ${item.status === 'pending'
+          ? `<button class="btn gmail-btn" onclick="openInGmail(${item.id})">📧 פתח ב-Gmail ושלח</button>`
+          : '<span style="font-size:13px;color:#16a34a;font-weight:600;">✓ נפתח ב-Gmail</span>'}
+        <button class="btn btn-danger btn-sm" onclick="removeQ(${item.id})">🗑 הסר</button>
+      </div>
+    </div>`).join('');
+}
+
+function removeQ(id) { queue = queue.filter(q => q.id !== id); updateQC(); renderQueue(); }
+
+function renderTracker() {
+  const total = leads.length;
+  const sent = leads.filter(l => l.status === 'נשלח').length;
+  const replied = leads.filter(l => l.status === 'ענה').length;
+  const unsent = leads.filter(l => !l.status || l.status === '' || l.status === '—').length;
+  document.getElementById('st-total').textContent = total;
+  document.getElementById('st-unsent').textContent = unsent;
+  document.getElementById('st-sent').textContent = sent;
+  document.getElementById('st-replied').textContent = replied;
+
+  const sentLeads = leads.filter(l => l.status && l.status !== '' && l.status !== '—');
+  const el = document.getElementById('tracker-list');
+  if (!sentLeads.length) { el.innerHTML = '<div class="empty">עדיין לא נשלחו מיילים.</div>'; return; }
+  el.innerHTML = sentLeads.map(l => `
+    <div class="card">
+      <div class="fb">
+        <div class="flex">
+          <span class="badge ${l.status === 'ענה' ? 'b-replied' : 'b-sent'}">${l.status}</span>
+          ${l.dateSent ? `<span style="font-size:12px;color:#6b7280;">${l.dateSent}</span>` : ''}
+        </div>
+        <div style="text-align:right;">
+          <div class="name">${l.name}</div>
+          <div class="sub">${l.email}</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.opacity = '1';
+  setTimeout(() => t.style.opacity = '0', 3000);
+}
+
+loadSetup();
+loadSheet();
+</script>
+</body>
+</html>
