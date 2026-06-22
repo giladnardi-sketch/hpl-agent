@@ -1,3 +1,5 @@
+cat /mnt/user-data/outputs/hpl_agent.html
+Output
 
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
@@ -132,7 +134,7 @@ table.leads-table tr.cat-row td{background:#e5e7eb;font-weight:700;color:#374151
       <p style="font-size:15px;font-weight:600;margin-bottom:1rem;">Google Sheets</p>
       <div class="field">
         <label>Sheet ID (מה-URL)</label>
-        <input type="text" id="sheet-id" value="17f_7C0jkwQWtBMFzOsSizFPz-VZ0CHu_Uc0nd27jXEE" />
+        <input type="text" id="sheet-id" value="1CX0KUqIuPVfulHHfyF3FZsV080MTmxi9KIQqa2wn4AE" />
       </div>
       <div class="field">
         <label>שם הגיליון</label>
@@ -170,7 +172,7 @@ const BL = ['cubes','cladds','clads'];
 const SUBJECT = 'שרטוטי sd לחיפוי מבנים — גלעד נרדי';
 let leads = [], queue = [], af = 'all';
 let S = {
-  sheetId: '17f_7C0jkwQWtBMFzOsSizFPz-VZ0CHu_Uc0nd27jXEE',
+  sheetId: '1CX0KUqIuPVfulHHfyF3FZsV080MTmxi9KIQqa2wn4AE',
   sheetName: 'לידים חיפוי ישראל',
   name: 'גלעד נרדי', phone: '052-8691819',
   gmail: 'giladnardi@gmail.com',
@@ -384,14 +386,24 @@ function openInGmail(id) {
     localStorage.setItem('hpl_sent_data', JSON.stringify(sentData));
   } catch(e) {}
   updateQC(); renderQueue(); renderTracker();
-  // Update Google Sheet via GET request (no CORS issues)
+  // Update Google Sheet via hidden iframe form (bypasses CORS completely)
   const _row = item.lead.row;
   const _date = new Date().toLocaleDateString('he-IL');
-  const _scriptUrl = 'https://script.google.com/macros/s/AKfycbxJoMj7KzilRbhiMBWxnNuM26cY4let1tWL4Ke_lXMhJYdpE65Mubh7osCYMQr6l8L9gA/exec';
-  const _getUrl = `${_scriptUrl}?row=${_row}&status=%D7%A0%D7%A9%D7%9C%D7%97&date=${encodeURIComponent(_date)}`;
-  fetch(_getUrl, {mode: 'no-cors'})
-    .then(() => toast('Gmail נפתח + הגיליון עודכן ✓'))
-    .catch(() => toast('Gmail נפתח ✓'));
+  const _scriptUrl = 'https://script.google.com/macros/s/AKfycbw3cRmpLb2lr3ucMBu54Yk41_UkZrV_rBuS_EGpDm397fl16eEOUxM-LgjNmfykGENyjg/exec';
+  try {
+    const _form = document.createElement('form');
+    _form.method = 'POST';
+    _form.action = _scriptUrl;
+    _form.target = '_sheet_iframe';
+    _form.style.display = 'none';
+    [['row',_row],['status','נשלח'],['date',_date]].forEach(([k,v])=>{
+      const i=document.createElement('input');i.type='hidden';i.name=k;i.value=v;_form.appendChild(i);
+    });
+    document.body.appendChild(_form);
+    _form.submit();
+    setTimeout(()=>document.body.removeChild(_form),2000);
+  } catch(e){}
+  toast('Gmail נפתח + הגיליון מתעדכן ✓');
 }
 
 function renderQueue() {
